@@ -1,30 +1,34 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Tayyar Login</title>
+<title>TAYYAR AUTH</title>
 
 <style>
 
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
 body{
 background:#111;
-font-family:Arial;
 display:flex;
 justify-content:center;
 align-items:center;
 height:100vh;
-margin:0;
 }
 
 .box{
-width:340px;
+width:350px;
 background:#1d1d1d;
 padding:25px;
 border-radius:20px;
-box-shadow:0 10px 30px rgba(0,0,0,.3);
 }
 
 h2{
@@ -41,26 +45,33 @@ border:none;
 border-radius:12px;
 background:#2b2b2b;
 color:white;
-box-sizing:border-box;
 }
 
 button{
 width:100%;
 padding:14px;
+margin-top:10px;
 border:none;
 border-radius:12px;
 background:#ff7a00;
 color:white;
 font-size:16px;
-margin-top:10px;
 cursor:pointer;
 }
 
 .link{
-text-align:center;
 margin-top:15px;
+text-align:center;
 color:#ff7a00;
 cursor:pointer;
+}
+
+.section{
+display:none;
+}
+
+.section.active{
+display:block;
 }
 
 </style>
@@ -71,7 +82,53 @@ cursor:pointer;
 
 <div class="box">
 
-<h2>إنشاء حساب / تسجيل دخول</h2>
+<!-- LOGIN -->
+
+<div id="login" class="section active">
+
+<h2>تسجيل الدخول</h2>
+
+<input
+id="loginEmail"
+type="email"
+placeholder="البريد الإلكتروني">
+
+<input
+id="loginPassword"
+type="password"
+placeholder="كلمة المرور">
+
+<button onclick="login()">
+تسجيل الدخول
+</button>
+
+<button onclick="googleLogin()">
+الدخول بواسطة جوجل
+</button>
+
+<div
+class="link"
+onclick="showRegister()">
+
+إنشاء حساب
+
+</div>
+
+<div
+class="link"
+onclick="showReset()">
+
+نسيت كلمة المرور؟
+
+</div>
+
+</div>
+
+<!-- REGISTER -->
+
+<div id="register" class="section">
+
+<h2>إنشاء حساب</h2>
 
 <input
 id="name"
@@ -82,122 +139,133 @@ id="phone"
 placeholder="رقم الهاتف">
 
 <input
-id="email"
+id="registerEmail"
 type="email"
 placeholder="البريد الإلكتروني">
 
 <input
-id="password"
+id="registerPassword"
 type="password"
 placeholder="كلمة المرور">
 
 <button onclick="register()">
-إنشاء حساب
-</button>
 
-<button onclick="login()">
-تسجيل الدخول
+إنشاء حساب
+
 </button>
 
 <div
 class="link"
-onclick="resetPassword()">
-نسيت كلمة المرور؟
+onclick="showLogin()">
+
+لدي حساب بالفعل
+
+</div>
+
+</div>
+
+<!-- RESET -->
+
+<div id="reset" class="section">
+
+<h2>نسيت كلمة المرور</h2>
+
+<input
+id="resetEmail"
+type="email"
+placeholder="البريد الإلكتروني">
+
+<button onclick="resetPassword()">
+
+إرسال رابط الاستعادة
+
+</button>
+
+<div
+class="link"
+onclick="showLogin()">
+
+رجوع
+
+</div>
+
 </div>
 
 </div>
 
 <script type="module">
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { auth, db }
+from "./firebase-config.js";
 
 import {
-getAuth,
+
 createUserWithEmailAndPassword,
 signInWithEmailAndPassword,
-sendPasswordResetEmail
+sendPasswordResetEmail,
+GoogleAuthProvider,
+signInWithPopup
+
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
-getFirestore,
+
 doc,
 setDoc
+
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
+window.showRegister=()=>{
 
-apiKey: "AIzaSyB8VTVOL750GJiWrd0o979zI79ZN5aGdMU",
-
-authDomain: "login-2b974.firebaseapp.com",
-
-projectId: "login-2b974",
-
-storageBucket: "login-2b974.firebasestorage.app",
-
-messagingSenderId: "560611475312",
-
-appId: "1:560611475312:web:f67fec6f2d8795af9019b5",
-
-measurementId: "G-WJ89BXPQZX"
-
-};
-
-const app = initializeApp(firebaseConfig);
-
-const auth = getAuth(app);
-
-const db = getFirestore(app);
-
-window.register = async function(){
-
-const name =
-document.getElementById("name").value.trim();
-
-const phone =
-document.getElementById("phone").value.trim();
-
-const email =
-document.getElementById("email").value.trim();
-
-const password =
-document.getElementById("password").value;
-
-if(!name || !phone || !email || !password){
-
-alert("املأ جميع البيانات");
-
-return;
+login.classList.remove("active");
+reset.classList.remove("active");
+register.classList.add("active");
 
 }
+
+window.showLogin=()=>{
+
+register.classList.remove("active");
+reset.classList.remove("active");
+login.classList.add("active");
+
+}
+
+window.showReset=()=>{
+
+login.classList.remove("active");
+register.classList.remove("active");
+reset.classList.add("active");
+
+}
+
+window.register = async ()=>{
 
 try{
 
 const userCredential =
 await createUserWithEmailAndPassword(
 auth,
-email,
-password
+registerEmail.value,
+registerPassword.value
 );
-
-const user = userCredential.user;
 
 await setDoc(
-doc(db,"users",user.uid),
+doc(db,"users",userCredential.user.uid),
 {
-name:name,
-phone:phone,
-email:email,
-createdAt:new Date().toISOString()
+name:name.value,
+phone:phone.value,
+email:registerEmail.value
 }
 );
 
-alert("✅ تم إنشاء الحساب");
+alert("تم إنشاء الحساب");
 
-}
-catch(error){
+showLogin();
+
+}catch(error){
 
 alert(error.code);
 
@@ -205,26 +273,19 @@ alert(error.code);
 
 }
 
-window.login = async function(){
-
-const email =
-document.getElementById("email").value.trim();
-
-const password =
-document.getElementById("password").value;
+window.login = async ()=>{
 
 try{
 
 await signInWithEmailAndPassword(
 auth,
-email,
-password
+loginEmail.value,
+loginPassword.value
 );
 
-alert("✅ تم تسجيل الدخول");
+window.location.href="profile.html";
 
-}
-catch(error){
+}catch(error){
 
 alert(error.code);
 
@@ -232,32 +293,40 @@ alert(error.code);
 
 }
 
-window.resetPassword = async function(){
-
-const email =
-document.getElementById("email").value.trim();
-
-if(!email){
-
-alert("اكتب البريد الإلكتروني");
-
-return;
-
-}
+window.resetPassword = async ()=>{
 
 try{
 
 await sendPasswordResetEmail(
 auth,
-email
+resetEmail.value
 );
 
-alert(
-"📩 تم إرسال رابط إعادة تعيين كلمة المرور"
-);
+alert("تم إرسال الرابط");
+
+}catch(error){
+
+alert(error.code);
 
 }
-catch(error){
+
+}
+
+window.googleLogin = async ()=>{
+
+try{
+
+const provider =
+new GoogleAuthProvider();
+
+await signInWithPopup(
+auth,
+provider
+);
+
+window.location.href="profile.html";
+
+}catch(error){
 
 alert(error.code);
 
