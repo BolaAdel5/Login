@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Firebase Login</title>
+<title>Tayyar Login</title>
 
 <style>
 
@@ -65,11 +66,20 @@ cursor:pointer;
 </style>
 
 </head>
+
 <body>
 
 <div class="box">
 
-<h2>تسجيل الدخول</h2>
+<h2>إنشاء حساب / تسجيل دخول</h2>
+
+<input
+id="name"
+placeholder="الاسم">
+
+<input
+id="phone"
+placeholder="رقم الهاتف">
 
 <input
 id="email"
@@ -92,9 +102,7 @@ placeholder="كلمة المرور">
 <div
 class="link"
 onclick="resetPassword()">
-
 نسيت كلمة المرور؟
-
 </div>
 
 </div>
@@ -112,20 +120,44 @@ sendPasswordResetEmail
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+import {
+getFirestore,
+doc,
+setDoc
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 const firebaseConfig = {
-  apiKey: "AIzaSyB8VTVOL750GJiWrd0o979zI79ZN5aGdMU",
-  authDomain: "login-2b974.firebaseapp.com",
-  projectId: "login-2b974",
-  storageBucket: "login-2b974.firebasestorage.app",
-  messagingSenderId: "560611475312",
-  appId: "1:560611475312:web:f67fec6f2d8795af9019b5",
-  measurementId: "G-WJ89BXPQZX"
+
+apiKey: "AIzaSyB8VTVOL750GJiWrd0o979zI79ZN5aGdMU",
+
+authDomain: "login-2b974.firebaseapp.com",
+
+projectId: "login-2b974",
+
+storageBucket: "login-2b974.firebasestorage.app",
+
+messagingSenderId: "560611475312",
+
+appId: "1:560611475312:web:f67fec6f2d8795af9019b5",
+
+measurementId: "G-WJ89BXPQZX"
+
 };
+
 const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 
+const db = getFirestore(app);
+
 window.register = async function(){
+
+const name =
+document.getElementById("name").value.trim();
+
+const phone =
+document.getElementById("phone").value.trim();
 
 const email =
 document.getElementById("email").value.trim();
@@ -133,15 +165,36 @@ document.getElementById("email").value.trim();
 const password =
 document.getElementById("password").value;
 
+if(!name || !phone || !email || !password){
+
+alert("املأ جميع البيانات");
+
+return;
+
+}
+
 try{
 
+const userCredential =
 await createUserWithEmailAndPassword(
 auth,
 email,
 password
 );
 
-alert("✅ تم إنشاء الحساب بنجاح");
+const user = userCredential.user;
+
+await setDoc(
+doc(db,"users",user.uid),
+{
+name:name,
+phone:phone,
+email:email,
+createdAt:new Date().toISOString()
+}
+);
+
+alert("✅ تم إنشاء الحساب");
 
 }
 catch(error){
@@ -168,10 +221,7 @@ email,
 password
 );
 
-alert("✅ تم تسجيل الدخول بنجاح");
-
-// لو عندك صفحة رئيسية
-// window.location.href = "home.html";
+alert("✅ تم تسجيل الدخول");
 
 }
 catch(error){
