@@ -3,12 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تسجيل الدخول</title>
+
+<title>Firebase Login</title>
 
 <style>
+
 body{
-font-family:Arial;
 background:#111;
+font-family:Arial;
 display:flex;
 justify-content:center;
 align-items:center;
@@ -17,47 +19,51 @@ margin:0;
 }
 
 .box{
-background:#1c1c1c;
+width:340px;
+background:#1d1d1d;
 padding:25px;
 border-radius:20px;
-width:320px;
-color:white;
+box-shadow:0 10px 30px rgba(0,0,0,.3);
 }
 
 h2{
 text-align:center;
 color:#ff7a00;
+margin-bottom:20px;
 }
 
 input{
 width:100%;
-padding:12px;
-margin:8px 0;
+padding:14px;
+margin-bottom:10px;
 border:none;
-border-radius:10px;
-background:#2a2a2a;
+border-radius:12px;
+background:#2b2b2b;
 color:white;
+box-sizing:border-box;
 }
 
 button{
 width:100%;
-padding:12px;
-margin-top:10px;
+padding:14px;
 border:none;
-border-radius:10px;
+border-radius:12px;
 background:#ff7a00;
 color:white;
 font-size:16px;
+margin-top:10px;
 cursor:pointer;
 }
 
 .link{
 text-align:center;
-margin-top:10px;
-cursor:pointer;
+margin-top:15px;
 color:#ff7a00;
+cursor:pointer;
 }
+
 </style>
+
 </head>
 <body>
 
@@ -65,30 +71,46 @@ color:#ff7a00;
 
 <h2>تسجيل الدخول</h2>
 
-<input id="email" type="email" placeholder="البريد الإلكتروني">
+<input
+id="email"
+type="email"
+placeholder="البريد الإلكتروني">
 
-<input id="password" type="password" placeholder="كلمة المرور">
+<input
+id="password"
+type="password"
+placeholder="كلمة المرور">
 
-<button onclick="login()">دخول</button>
+<button onclick="register()">
+إنشاء حساب
+</button>
 
-<button onclick="register()">إنشاء حساب</button>
+<button onclick="login()">
+تسجيل الدخول
+</button>
 
-<div class="link" onclick="resetPassword()">
+<div
+class="link"
+onclick="resetPassword()">
+
 نسيت كلمة المرور؟
+
 </div>
 
 </div>
 
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
 getAuth,
 createUserWithEmailAndPassword,
 signInWithEmailAndPassword,
 sendPasswordResetEmail
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB8VTVOL750GJiWrd0o979zI79ZN5aGdMU",
@@ -104,10 +126,10 @@ const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 
-window.register = async ()=>{
+window.register = async function(){
 
 const email =
-document.getElementById("email").value;
+document.getElementById("email").value.trim();
 
 const password =
 document.getElementById("password").value;
@@ -120,20 +142,21 @@ email,
 password
 );
 
-alert("تم إنشاء الحساب بنجاح");
+alert("✅ تم إنشاء الحساب بنجاح");
 
-}catch(err){
+}
+catch(error){
 
-alert(err.message);
+alert(error.code);
 
 }
 
-};
+}
 
-window.login = async ()=>{
+window.login = async function(){
 
 const email =
-document.getElementById("email").value;
+document.getElementById("email").value.trim();
 
 const password =
 document.getElementById("password").value;
@@ -146,20 +169,24 @@ email,
 password
 );
 
-alert("تم تسجيل الدخول");
+alert("✅ تم تسجيل الدخول بنجاح");
 
-}catch(err){
+// لو عندك صفحة رئيسية
+// window.location.href = "home.html";
 
-alert(err.message);
+}
+catch(error){
+
+alert(error.code);
 
 }
 
-};
+}
 
-window.resetPassword = async ()=>{
+window.resetPassword = async function(){
 
 const email =
-document.getElementById("email").value;
+document.getElementById("email").value.trim();
 
 if(!email){
 
@@ -176,15 +203,18 @@ auth,
 email
 );
 
-alert("تم إرسال رابط إعادة التعيين");
+alert(
+"📩 تم إرسال رابط إعادة تعيين كلمة المرور"
+);
 
-}catch(err){
+}
+catch(error){
 
-alert(err.message);
+alert(error.code);
 
 }
 
-};
+}
 
 </script>
 
